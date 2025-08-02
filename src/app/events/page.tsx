@@ -1,8 +1,16 @@
 "use client"
 import { createClient } from "@/utils/supabase/client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { toast } from "react-fox-toast";
 import { useUser } from "@clerk/nextjs";
+
+interface Event {
+  id: number;
+  title: string;
+  description: string;
+  event_date: string;
+  tier: string;
+}
 
 const tierRank = {
     free: 1,
@@ -13,7 +21,7 @@ const tierRank = {
 
 const EventsPage = () => {
     const supabase = createClient();
-    const [events, setEvents] = useState<any[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { user, isLoaded } = useUser()
@@ -21,11 +29,10 @@ const EventsPage = () => {
     const userTierRank = tierRank[userTier ?? 'free'];
 
     const allowedTiers = Object.entries(tierRank)
-    .filter(([_, rank]) => rank <= userTierRank)
+    .filter(([, rank]) => rank <= userTierRank)
     .map(([tier]) => tier);
  
-
-    const fetchEvents = async () => {
+    const fetchEvents = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -47,7 +54,7 @@ const EventsPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [allowedTiers, supabase]);
 
     const addTestData = async () => {
         try {
@@ -58,7 +65,7 @@ const EventsPage = () => {
                 { title: "Premium Event", tier: "platinum", description: "A premium event for platinum users", event_date: "2024-01-30" }
             ];
 
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from("events")
                 .insert(testEvents)
                 .select();
@@ -69,7 +76,7 @@ const EventsPage = () => {
                 toast.success("Test data added successfully!");
                 fetchEvents(); // Refresh the list
             }
-        } catch (err) {
+        } catch {
             toast.error("Failed to add test data");
         }
     };
@@ -87,7 +94,7 @@ const EventsPage = () => {
                 });
             }
         }
-    }, [isLoaded, userTier]);
+    }, [isLoaded, userTier, fetchEvents, user]);
 
     // Show loading state while user data is being loaded
     if (!isLoaded) {

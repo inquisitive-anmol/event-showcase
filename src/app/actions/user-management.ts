@@ -3,7 +3,6 @@
 
 import { clerkClient } from '@clerk/nextjs/server';
 
-
 export async function getUserById(id: string) {
   const clerk = await clerkClient();
   const user = await clerk.users.getUser(id);
@@ -19,9 +18,9 @@ export async function getUserById(id: string) {
       verification: {
         status: email.verification?.status,
         strategy: email.verification?.strategy,
-        externalVerificationRedirectURL: email.verification?.externalVerificationRedirectURL,
+        externalVerificationRedirectURL: email.verification?.externalVerificationRedirectURL?.toString(),
         attempts: email.verification?.attempts,
-        expireAt: email.verification?.expireAt,
+        expireAt: email.verification?.expireAt?.toString(),
         nonce: email.verification?.nonce,
         message: email.verification?.message
       }
@@ -32,11 +31,10 @@ export async function getUserById(id: string) {
     lastName: user.lastName,
     username: user.username,
     imageUrl: user.imageUrl,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt
+    createdAt: user.createdAt.toString(),
+    updatedAt: user.updatedAt.toString()
   };
 }
-
 
 export async function updateUserMetadata(id: string, data: {
   tier: 'free' | 'silver' | 'gold' | 'platinum',
@@ -56,23 +54,22 @@ export async function deleteUser(id: string) {
   await clerk.users.deleteUser(id);
 }
 
-
 export async function getAllUsers() {
   const clerk = await clerkClient();
   const response = await clerk.users.getUserList({ limit: 100 });
   
   // Return only serializable data for each user
-  return response.data.map((user: any) => ({
+  return response.data.map((user) => ({
     id: user.id,
-    emailAddresses: user.emailAddresses.map((email: any) => ({
+    emailAddresses: user.emailAddresses.map((email) => ({
       id: email.id,
       emailAddress: email.emailAddress,
       verification: {
         status: email.verification?.status,
         strategy: email.verification?.strategy,
-        externalVerificationRedirectURL: email.verification?.externalVerificationRedirectURL,
+        externalVerificationRedirectURL: email.verification?.externalVerificationRedirectURL?.toString(),
         attempts: email.verification?.attempts,
-        expireAt: email.verification?.expireAt,
+        expireAt: email.verification?.expireAt?.toString(),
         nonce: email.verification?.nonce,
         message: email.verification?.message
       }
@@ -83,8 +80,8 @@ export async function getAllUsers() {
     lastName: user.lastName,
     username: user.username,
     imageUrl: user.imageUrl,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt
+    createdAt: user.createdAt.toString(),
+    updatedAt: user.updatedAt.toString()
   }));
 }
 

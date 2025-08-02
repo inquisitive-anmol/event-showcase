@@ -5,18 +5,32 @@ import { getUserById, updateUserMetadata } from '@/app/actions/user-management';
 import { toast } from 'react-fox-toast';
 import { useAuth } from '@clerk/nextjs';
 
-  export default function SettingsPage() {
+interface UserData {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  emailAddresses: Array<{
+    emailAddress: string;
+  }>;
+  publicMetadata: {
+    tier?: string;
+    role?: string;
+  };
+}
+
+export default function SettingsPage() {
   const [isPending, startTransition] = useTransition();
   const { userId, isLoaded, isSignedIn } = useAuth();
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState<UserData | null>(null);
+  
   useEffect(() => {
     const fetchData = async () => {
       console.log(isLoaded, isSignedIn, userId);
       if (isLoaded && isSignedIn &&  userId) {
         try {
-          const data = await getUserById(userId);
-          console.log(data);
-          setData(data);
+          const userData = await getUserById(userId);
+          console.log(userData);
+          setData(userData);
         } catch (error) {
           console.log("error: ", error);
         }
