@@ -1,4 +1,5 @@
 # Tier-Based Event Showcase
+#live url: https://event-showcase-lilac.vercel.app/
 
 A modern web application built with Next.js 15, featuring tier-based event access control, user authentication with Clerk, and real-time database operations with Supabase.
 
